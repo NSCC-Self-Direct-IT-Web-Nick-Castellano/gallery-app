@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Galery App</string>
+    <string name="gallery_title_1">St. Mark\'s Basilica</string>
+    <string name="gallery_title_2">Piazza San Marco</string>
+    <string name="gallery_title_3">Grimani di Santa Maria Formosa</string>
+    <string name="gallery_title_4">Giardino Papadopoli</string>
+    <string name="gallery_title_5">Libreria Acqua Alta</string>
+    <string name="gallery_title_6">Gallerie dell\’Accademia</string>
+    <string name="gallery_title_7">Peggy Guggenheim Collection</string>
+    <string name="gallery_title_8">Palazzo Ducale</string>
+    <string name="gallery_title_9">Campanile di San Marco</string>
+    <string name="gallery_title_10">Teatro La Fenice</string>
+    <string name="gallery_title_11">Palazzo Grassi</string>
+    <string name="gallery_title_12">The Carabinieri</string>
+
+</resources>
