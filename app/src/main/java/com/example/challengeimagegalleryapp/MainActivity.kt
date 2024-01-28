@@ -119,7 +119,8 @@ fun AppTitleSection(modifier: Modifier = Modifier) {
             color = Color.White,
             fontWeight = FontWeight.SemiBold,
             fontFamily = FontFamily.Monospace,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            textAlign = TextAlign.Center
         )
     }
 }
