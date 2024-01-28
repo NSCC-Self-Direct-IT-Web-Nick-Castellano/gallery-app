@@ -3,29 +3,41 @@ package com.example.challengeimagegalleryapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.challengeimagegalleryapp.ui.theme.ChallengeImageGalleryAppTheme
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,16 +67,43 @@ fun GalleryApp(modifier: Modifier = Modifier
     // title of the picture
 
     // have mutable states
-    val currentImage by remember { mutableIntStateOf(1) }
+    var currentImage by remember { mutableIntStateOf(1) }
+
+    // the mutable states of image resources
+    var currentImageResource by remember { mutableIntStateOf(R.drawable.gallery_image_1) }
+    var currentImageTitleResource by remember { mutableIntStateOf(R.string.gallery_title_1) }
+
+    // add onvalue change
+    val onCurrentImageResourceChange =
+        { newResource: Int -> currentImageResource = newResource }
+    val onCurrentImageTitleResourceChange =
+        { newResource: Int -> currentImageTitleResource = newResource }
+    val onCurrentImageChange =
+        { newImageNumber: Int -> currentImage = newImageNumber }
+
+    // have a parent modifier that all child inherit from
     val parentModifier: Modifier = Modifier
         .fillMaxWidth()
     Column (
         modifier = parentModifier
     ) {
         AppTitleSection(modifier = parentModifier)
-        NavigationButtonsSection(modifier = parentModifier)
-        ImageSection(modifier = parentModifier)
-        ImageTitleSection(modifier = parentModifier)
+        NavigationButtonsSection(
+            imageNumber = currentImage,
+            onImageChange = onCurrentImageChange,
+            onImageResourceChange = onCurrentImageResourceChange,
+            onImageTitleResourceChange = onCurrentImageTitleResourceChange,
+            modifier = parentModifier
+        )
+        ImageSection(
+            currentImageResource = currentImageResource,
+            currentImageTitleResource= currentImageTitleResource,
+            modifier = parentModifier
+        )
+        ImageTitleSection(
+            currentImageTitleResource = currentImageTitleResource,
+            modifier = parentModifier
+        )
     }
 }
 
@@ -85,25 +124,102 @@ fun AppTitleSection(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-fun NavigationButtonsSection(modifier: Modifier = Modifier) {
-    Row (
-        modifier = modifier
-    ) {
 
+@Composable
+fun NavigationButtonsSection(
+    imageNumber: Int,
+    onImageResourceChange: (Int) -> Unit,
+    onImageTitleResourceChange: (Int) -> Unit,
+    onImageChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var timerIsOn by remember { mutableStateOf(false) }
+
+//    if (timerIsOn) {
+//        // execute the timer method
+//        setInterval(500) {
+//            onImageChange(goToNextImageNumber(imageNumber))
+//            println(imageNumber)
+//
+//            // recalculate the image resources
+//            onImageResourceChange(getImageResourceByNumber(imageNumber))
+//            onImageTitleResourceChange(getImageTitleResourceByNumber(imageNumber))
+//        }
+//    }
+
+    Row (
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .padding(16.dp, 8.dp)
+    ) {
+        Button(onClick = {
+            timerIsOn = false
+            onImageChange(goToPrevImageNumber(imageNumber))
+
+            // recalculate the image resources
+            onImageResourceChange(getImageResourceByNumber(imageNumber))
+            onImageTitleResourceChange(getImageTitleResourceByNumber(imageNumber))
+        }) {
+            Icon(painter = painterResource(id = R.drawable.arrow_prev), contentDescription = "Go toPrevious Image")
+        }
+        Button(onClick = {
+            timerIsOn = !timerIsOn
+
+        }) {
+            Icon(painter = painterResource(id = R.drawable.timer_animation_icon), contentDescription = "Go toPrevious Image")
+        }
+        Button(onClick = {
+            timerIsOn = false
+            onImageChange(goToNextImageNumber(imageNumber))
+
+            // recalculate the image resources
+            onImageResourceChange(getImageResourceByNumber(imageNumber))
+            onImageTitleResourceChange(getImageTitleResourceByNumber(imageNumber))
+        }) {
+            Icon(painter = painterResource(id = R.drawable.arrow_next), contentDescription = "Go toPrevious Image")
+        }
     }
 }
 
 
 @Composable
-fun ImageSection(modifier: Modifier = Modifier) {
-
+fun ImageSection(
+    currentImageResource: Int,
+    currentImageTitleResource: Int,
+    modifier: Modifier = Modifier
+) {
+    Row (
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier
+            .padding(8.dp, 20.dp)
+    ) {
+        Image(
+            painter = painterResource(id = currentImageResource),
+            contentDescription = stringResource(id = currentImageTitleResource)
+        )
+    }
 }
 
 
 @Composable
-fun ImageTitleSection(modifier: Modifier = Modifier) {
-
+fun ImageTitleSection(
+    currentImageTitleResource: Int,
+    modifier: Modifier = Modifier
+) {
+    Row (
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier
+            .padding(8.dp, 12.dp)
+    ) {
+        Text(
+            text = stringResource(id = currentImageTitleResource),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily.SansSerif,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 // the data
@@ -147,7 +263,7 @@ val imageTitleResourceArray = arrayListOf<Int>(
 // image number start from 1 to 12, which are the numeration
 // I use to name the gallery titles and images in the resources
 fun getImageResourceByNumber(imageNumber:Int) : Int {
-    if (imageNumber>0 || imageNumber<= imageResourcesArray.size) {
+    if (imageNumber>0 && imageNumber<= imageResourcesArray.size) {
         return imageResourcesArray[imageNumber - 1]
     } else {
         return imageResourcesArray[0]
@@ -156,7 +272,7 @@ fun getImageResourceByNumber(imageNumber:Int) : Int {
 
 
 fun getImageTitleResourceByNumber(imageNumber:Int) : Int {
-    if (imageNumber>0 || imageNumber<= imageTitleResourceArray.size) {
+    if (imageNumber>0 && imageNumber<= imageTitleResourceArray.size) {
         return imageTitleResourceArray[imageNumber - 1]
     } else {
         return imageTitleResourceArray[0]
@@ -164,8 +280,8 @@ fun getImageTitleResourceByNumber(imageNumber:Int) : Int {
 }
 
 fun goToNextImageNumber(imageNumber: Int): Int {
-    if (imageNumber>0 || imageNumber < imageResourcesArray.size
-        || imageNumber < imageTitleResourceArray.size) {
+    if (imageNumber>0 && imageNumber < imageResourcesArray.size
+        && imageNumber < imageTitleResourceArray.size) {
         return imageNumber + 1
     } else {
         return 1
@@ -173,8 +289,8 @@ fun goToNextImageNumber(imageNumber: Int): Int {
 }
 
 fun goToPrevImageNumber(imageNumber: Int): Int {
-    if (imageNumber>1 || imageNumber <=imageResourcesArray.size
-        || imageNumber <= imageTitleResourceArray.size) {
+    if (imageNumber>1 && imageNumber <=imageResourcesArray.size
+        && imageNumber <= imageTitleResourceArray.size) {
         return  imageNumber - 1
     } else {
         return imageTitleResourceArray.size
